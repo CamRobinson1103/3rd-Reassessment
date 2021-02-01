@@ -19,6 +19,5 @@ private:
     double enemyHealth;
     double enemyMaxHealth;
     int enemyDamage;
-    Sprite* m_sprite;
 };
 
