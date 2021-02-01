@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Actor.h"
+#include "Sprite.h"
 
 void Enemy::enemy(std::string area)
 {
