@@ -22,5 +22,6 @@ private:
     double playerHealth;
     double playerMaxHealth;
     int playerDamage;
+    Sprite* m_sprite;
 };
 
