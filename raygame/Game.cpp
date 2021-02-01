@@ -21,7 +21,7 @@ void Game::start()
 	int screenWidth = 1024;
 	int screenHeight = 760;
 
-	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+	InitWindow(screenWidth, screenHeight, "Brutal Fruit");
 	m_camera->offset = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->target = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->zoom = 1;
@@ -42,7 +42,7 @@ void Game::draw()
 	BeginDrawing();
 
 	BeginMode2D(*m_camera);
-	ClearBackground(RAYWHITE);
+	ClearBackground(BLACK);
 
 	for (int i = 0; i < m_sceneCount; i++)
 	{
