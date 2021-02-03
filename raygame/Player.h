@@ -4,7 +4,6 @@
 class Player
 {
 public:
-    Player(float x, float y, Color rayColor, char icon = ' ' );
     void player(std::string, std::string);
     void setName(std::string);
     void setArea(std::string);

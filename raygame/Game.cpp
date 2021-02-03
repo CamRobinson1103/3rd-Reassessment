@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "raylib.h"
+#include "Vector2.h"
 
 bool Game::m_gameOver = false;
 Scene** Game::m_scenes = new Scene*;
@@ -26,6 +27,28 @@ void Game::start()
 	m_camera->target = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->zoom = 1;
 
+	Vector2 ballPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
+
+	while (!WindowShouldClose())    
+	{
+		
+		if (IsKeyDown(KEY_D)) ballPosition.x += 1.0f;
+		if (IsKeyDown(KEY_A)) ballPosition.x -= 1.0f;
+		if (IsKeyDown(KEY_W)) ballPosition.y -= 1.0f;
+		if (IsKeyDown(KEY_S)) ballPosition.y += 1.0f;
+		
+		BeginDrawing();
+
+		ClearBackground(BLACK);
+
+		DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+
+		DrawCircleV(ballPosition, 50, MAROON);
+
+		EndDrawing();
+		
+	}
+
 	SetTargetFPS(60);
 }
 
@@ -42,7 +65,9 @@ void Game::draw()
 	BeginDrawing();
 
 	BeginMode2D(*m_camera);
-	ClearBackground(MAROON);
+	ClearBackground(BLACK);
+
+	
 
 	for (int i = 0; i < m_sceneCount; i++)
 	{
@@ -69,6 +94,7 @@ void Game::run()
 
 	while (!m_gameOver && !RAYLIB_H::WindowShouldClose())
 	{
+
 		float deltaTime = RAYLIB_H::GetFrameTime();
 		update(deltaTime);
 		draw();

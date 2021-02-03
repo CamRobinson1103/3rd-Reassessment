@@ -11,10 +11,7 @@ void Player::player(std::string name, std::string area)
     setHealth(playerMaxHealth);
     setDamage();
 }
-Player::Player(float x, float y, Color rayColor, char icon = ' ')
-{
-    
-}
+
 void Player::setName(std::string name)
 {
     playerName = name;
@@ -27,6 +24,7 @@ void Player::setArea(std::string area)
 
 void Player::setMaxHealth()
 {
+
 }
 void Player::draw()
 {
