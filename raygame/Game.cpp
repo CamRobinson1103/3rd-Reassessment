@@ -27,23 +27,31 @@ void Game::start()
 	m_camera->target = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->zoom = 1;
 
-	Vector2 ballPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
+	Vector2 redBallPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
+	Vector2 blueBallPosition = { (float)screenWidth / 1, (float)screenHeight / 2 };
 
 	while (!WindowShouldClose())    
 	{
 		
-		if (IsKeyDown(KEY_D)) ballPosition.x += 1.0f;
-		if (IsKeyDown(KEY_A)) ballPosition.x -= 1.0f;
-		if (IsKeyDown(KEY_W)) ballPosition.y -= 1.0f;
-		if (IsKeyDown(KEY_S)) ballPosition.y += 1.0f;
+		if (IsKeyDown(KEY_D)) redBallPosition.x += 1.0f;
+		if (IsKeyDown(KEY_A)) redBallPosition.x -= 1.0f;
+		if (IsKeyDown(KEY_W)) redBallPosition.y -= 1.0f;
+		if (IsKeyDown(KEY_S)) redBallPosition.y += 1.0f;
+
+		if (IsKeyDown(KEY_RIGHT)) blueBallPosition.x += 1.0f;
+		if (IsKeyDown(KEY_LEFT)) blueBallPosition.x -= 1.0f;
+		if (IsKeyDown(KEY_UP)) blueBallPosition.y -= 1.0f;
+		if (IsKeyDown(KEY_DOWN)) blueBallPosition.y += 1.0f;
 		
 		BeginDrawing();
 
 		ClearBackground(BLACK);
 
-		DrawText("move the ball with arrow keys", 10, 10, 20, DARKGRAY);
+		DrawText("move the ball with A, D, W, and S", 10, 10, 20, DARKGRAY);
 
-		DrawCircleV(ballPosition, 50, MAROON);
+		DrawCircleV(redBallPosition, 50, MAROON);
+		DrawCircleV(blueBallPosition, 50, BLUE);
+
 
 		EndDrawing();
 		
