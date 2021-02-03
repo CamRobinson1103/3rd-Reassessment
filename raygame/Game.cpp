@@ -3,6 +3,7 @@
 #include "Vector2.h"
 
 bool Game::m_gameOver = false;
+bool collision = false;
 Scene** Game::m_scenes = new Scene*;
 int Game::m_sceneCount = 0;
 int Game::m_currentSceneIndex = 0;
@@ -19,39 +20,61 @@ Game::Game()
 
 void Game::start()
 {
-	int screenWidth = 1024;
-	int screenHeight = 760;
+	const int screenWidth = 1024;
+	const int screenHeight = 760;
+	int purpleBallRadius = 50;
+	int yellowBallRadius = 50;
+	bool pause = 0;
 
-	InitWindow(screenWidth, screenHeight, "Brutal Fruit");
+	InitWindow(screenWidth, screenHeight, "Yellow vs. Purple");
 	m_camera->offset = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->target = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->zoom = 1;
 
-	Vector2 redBallPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
-	Vector2 blueBallPosition = { (float)screenWidth / 1, (float)screenHeight / 2 };
+	Vector2 purpleBallPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
+	Vector2 yellowBallPosition = { (float)screenWidth / 1, (float)screenHeight / 2 };
+	Vector2 purpleBallSpeed{};
+	Vector2 yellowBallSpeed{};
+
 
 	while (!WindowShouldClose())    
 	{
+		if (IsKeyDown(KEY_D)) purpleBallPosition.x += 1.0f;
+		if (IsKeyDown(KEY_A)) purpleBallPosition.x -= 1.0f;
+		if (IsKeyDown(KEY_W)) purpleBallPosition.y -= 1.0f;
+		if (IsKeyDown(KEY_S)) purpleBallPosition.y += 1.0f;
 		
-		if (IsKeyDown(KEY_D)) redBallPosition.x += 1.0f;
-		if (IsKeyDown(KEY_A)) redBallPosition.x -= 1.0f;
-		if (IsKeyDown(KEY_W)) redBallPosition.y -= 1.0f;
-		if (IsKeyDown(KEY_S)) redBallPosition.y += 1.0f;
+		if (IsKeyDown(KEY_RIGHT)) yellowBallPosition.x += 1.0f;
+		if (IsKeyDown(KEY_LEFT)) yellowBallPosition.x -= 1.0f;
+		if (IsKeyDown(KEY_UP)) yellowBallPosition.y -= 1.0f;
+		if (IsKeyDown(KEY_DOWN)) yellowBallPosition.y += 1.0f;
 
-		if (IsKeyDown(KEY_RIGHT)) blueBallPosition.x += 1.0f;
-		if (IsKeyDown(KEY_LEFT)) blueBallPosition.x -= 1.0f;
-		if (IsKeyDown(KEY_UP)) blueBallPosition.y -= 1.0f;
-		if (IsKeyDown(KEY_DOWN)) blueBallPosition.y += 1.0f;
+		if (IsKeyPressed(KEY_SPACE)) pause = !pause;
+
+		if (!pause)
+		{
+			purpleBallPosition.x += purpleBallSpeed.x;
+			purpleBallPosition.y += purpleBallSpeed.y;
+			yellowBallPosition.x += yellowBallSpeed.x;
+			yellowBallPosition.y += yellowBallSpeed.y;
+
+			if ((purpleBallPosition.x >= (GetScreenWidth() - purpleBallRadius)) || (purpleBallPosition.x <= purpleBallRadius)) purpleBallSpeed.x *= -1.0f;
+			if ((purpleBallPosition.y >= (GetScreenHeight() - purpleBallRadius)) || (purpleBallPosition.y <= purpleBallRadius)) purpleBallSpeed.y *= -1.0f;
+
+			if ((yellowBallPosition.x >= (GetScreenWidth() - yellowBallRadius)) || (yellowBallPosition.x <= yellowBallRadius)) yellowBallSpeed.x *= -1.0f;
+			if ((yellowBallPosition.y >= (GetScreenHeight() - yellowBallRadius)) || (yellowBallPosition.y <= yellowBallRadius)) yellowBallSpeed.y *= .0f;
+		}
 		
+		
+		
+		
+
 		BeginDrawing();
-
+		DrawCircleV(purpleBallPosition, purpleBallRadius, PURPLE);
+		DrawCircleV(yellowBallPosition, yellowBallRadius, YELLOW);
+		
+	
 		ClearBackground(BLACK);
-
-		DrawText("move the ball with A, D, W, and S", 10, 10, 20, DARKGRAY);
-
-		DrawCircleV(redBallPosition, 50, MAROON);
-		DrawCircleV(blueBallPosition, 50, BLUE);
-
 
 		EndDrawing();
 		
@@ -59,6 +82,7 @@ void Game::start()
 
 	SetTargetFPS(60);
 }
+
 
 void Game::update(float deltaTime)
 {
