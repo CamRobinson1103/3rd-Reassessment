@@ -65,6 +65,7 @@ void Game::start()
 			if ((yellowBallPosition.y >= (GetScreenHeight() - yellowBallRadius)) || (yellowBallPosition.y <= yellowBallRadius)) yellowBallSpeed.y *= .0f;
 		}
 		
+		CheckCollisionCircles(purpleBallPosition, purpleBallRadius, yellowBallPosition, yellowBallRadius);
 		
 		
 		
