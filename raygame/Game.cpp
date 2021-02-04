@@ -1,13 +1,15 @@
 #include "Game.h"
 #include "raylib.h"
 #include "Vector2.h"
+#include "Actor.h"
 
 bool Game::m_gameOver = false;
 bool collision = false;
 Scene** Game::m_scenes = new Scene*;
 int Game::m_sceneCount = 0;
 int Game::m_currentSceneIndex = 0;
-
+Actor* purpleBall = new Actor(12,3,50,' ', 1 );
+Actor* yellowBall = new Actor(3, 13, 50, ' ', 1);
 
 Game::Game()
 {
@@ -22,9 +24,8 @@ void Game::start()
 {
 	const int screenWidth = 1024;
 	const int screenHeight = 760;
-	int purpleBallRadius = 50;
-	int yellowBallRadius = 50;
-	bool pause = 0;
+
+	
 
 	InitWindow(screenWidth, screenHeight, "Yellow vs. Purple");
 	m_camera->offset = { (float)screenWidth / 2, (float)screenHeight / 2 };
@@ -49,30 +50,18 @@ void Game::start()
 		if (IsKeyDown(KEY_UP)) yellowBallPosition.y -= 1.0f;
 		if (IsKeyDown(KEY_DOWN)) yellowBallPosition.y += 1.0f;
 
-		if (IsKeyPressed(KEY_SPACE)) pause = !pause;
+		if ((purpleBallPosition.x >= (GetScreenWidth() - purpleBall->getCollisionRadius())) || (purpleBallPosition.x <= purpleBall->getCollisionRadius())) purpleBallSpeed.x *= -1.0f;
+		if ((purpleBallPosition.y >= (GetScreenHeight() - purpleBall->getCollisionRadius())) || (purpleBallPosition.y <= purpleBall->getCollisionRadius())) purpleBallSpeed.y *= -1.0f;
 
-		if (!pause)
-		{
-			purpleBallPosition.x += purpleBallSpeed.x;
-			purpleBallPosition.y += purpleBallSpeed.y;
-			yellowBallPosition.x += yellowBallSpeed.x;
-			yellowBallPosition.y += yellowBallSpeed.y;
-
-			if ((purpleBallPosition.x >= (GetScreenWidth() - purpleBallRadius)) || (purpleBallPosition.x <= purpleBallRadius)) purpleBallSpeed.x *= -1.0f;
-			if ((purpleBallPosition.y >= (GetScreenHeight() - purpleBallRadius)) || (purpleBallPosition.y <= purpleBallRadius)) purpleBallSpeed.y *= -1.0f;
-
-			if ((yellowBallPosition.x >= (GetScreenWidth() - yellowBallRadius)) || (yellowBallPosition.x <= yellowBallRadius)) yellowBallSpeed.x *= -1.0f;
-			if ((yellowBallPosition.y >= (GetScreenHeight() - yellowBallRadius)) || (yellowBallPosition.y <= yellowBallRadius)) yellowBallSpeed.y *= .0f;
-		}
+		if ((yellowBallPosition.x >= (GetScreenWidth() - yellowBall->getCollisionRadius())) || (yellowBallPosition.x <= yellowBall->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
+		if ((yellowBallPosition.y >= (GetScreenHeight() - yellowBall->getCollisionRadius())) || (yellowBallPosition.y <= yellowBall->getCollisionRadius())) yellowBallSpeed.y *= .0f;
 		
-		CheckCollisionCircles(purpleBallPosition, purpleBallRadius, yellowBallPosition, yellowBallRadius);
+		purpleBall->onCollision(yellowBall);
+					
 		
-		
-		
-
 		BeginDrawing();
-		DrawCircleV(purpleBallPosition, purpleBallRadius, PURPLE);
-		DrawCircleV(yellowBallPosition, yellowBallRadius, YELLOW);
+		DrawCircleV(purpleBallPosition, purpleBall->getCollisionRadius(), PURPLE);
+		DrawCircleV(yellowBallPosition, yellowBall->getCollisionRadius(), YELLOW);
 		
 	
 		ClearBackground(BLACK);

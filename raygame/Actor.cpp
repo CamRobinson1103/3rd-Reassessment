@@ -228,12 +228,20 @@ void Actor::lookAt(MathLibrary::Vector2 position)
 
 bool Actor::checkCollision(Actor* other)
 {
-    float distance = (other->getWorldPosition() - getWorldPosition()).getMagnitude();
+    float distance = (other->getLocalPosition() - getLocalPosition()).getMagnitude();
     return distance <= m_collisionRadius + other->m_collisionRadius;
 }
 
 void Actor::onCollision(Actor* other)
 {
+    float distance = (other->getLocalPosition() - getLocalPosition()).getMagnitude();
+    if (distance <= m_collisionRadius + other->m_collisionRadius)
+    {
+        m_collisionRadius = m_collisionRadius / 2.0f;
+        other->m_collisionRadius = other->m_collisionRadius / 2.0f;
+    }
+
+    
 }
 
 void Actor::update(float deltaTime)

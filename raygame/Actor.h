@@ -39,6 +39,8 @@ public:
     /// <returns>A pointer to the actor that has been set as this actors parent.</returns>
     Actor* getParent() { return m_parent; }
 
+    float getCollisionRadius() { return m_collisionRadius; }
+
     /// <summary>
     /// </summary>
     /// <returns>The current orientation of this actors z axis.</returns>
@@ -195,9 +197,10 @@ protected:
 
 private:
     bool m_started;
-    float m_collisionRadius;
+    float m_collisionRadius = 50.0f;
     Actor* m_parent;
     int m_childCount;
     Sprite* m_sprite;
+    
 };
 
