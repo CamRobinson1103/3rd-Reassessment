@@ -62,7 +62,7 @@ void Game::start()
 	const int screenWidth = 1024;
 	const int screenHeight = 760;
 
-	player1.rec.x = 1000;
+	player1.rec.x = 800;
 	player1.rec.y = 50;
 	player1.rec.width = 100;
 	player1.rec.height = 100;
@@ -192,12 +192,10 @@ void Game::start()
 				DrawText("You Win!", screenWidth / 2 - MeasureText("You Win!", 40) / 2, screenHeight / 2 - 40, 40, GRAY);
 				player2.color = RAYWHITE;
 				player1.color = BLACK;
+				player1.rec.width = 2000;
+				player1.rec.height = 2000;
 				
 				_canMove = false;
-
-			}
-			if (collision)
-			{
 
 			}
 		}
