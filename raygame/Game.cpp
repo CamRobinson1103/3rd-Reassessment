@@ -8,12 +8,24 @@
 bool Game::m_gameOver = false;
 bool collision = false;
 bool pause = false;
+bool _canMove = true;
 Scene** Game::m_scenes = new Scene*;
 int Game::m_sceneCount = 0;
 int Game::m_currentSceneIndex = 0;
 
+void DisableControls()
+{
+	_canMove = false;
+}
 
+typedef struct Player {
+	Rectangle rec;
+	Vector2 speed;
+	Color color;
+} Player;
 
+static Player player1 = { 0 };
+static Player player2 = { 0 };
 
 Game::Game()
 {
@@ -29,6 +41,21 @@ void Game::start()
 	const int screenWidth = 1024;
 	const int screenHeight = 760;
 
+	player1.rec.x = 100;
+	player1.rec.y = 50;
+	player1.rec.width = 20;
+	player1.rec.height = 20;
+	player1.speed.x = 1;
+	player1.speed.y = 1;
+	player1.color = PURPLE;
+
+	player2.rec.x = 20;
+	player2.rec.y = 50;
+	player2.rec.width = 20;
+	player2.rec.height = 20;
+	player2.speed.x = 1;
+	player2.speed.y = 1;
+	player2.color = YELLOW;
 	
 
 	InitWindow(screenWidth, screenHeight, "Yellow vs. Purple");
@@ -58,16 +85,21 @@ void Game::start()
 
 		Rectangle boxCollision = { 0 }; 
 
-		if (IsKeyDown(KEY_D)) boxA.x += 450.0f;
-		if (IsKeyDown(KEY_A)) boxA.x -= 2.0f;
-		if (IsKeyDown(KEY_W)) boxA.y -= 2.0f;
-		if (IsKeyDown(KEY_S)) boxA.y += 2.0f;
 		
-		if (IsKeyDown(KEY_RIGHT)) boxB.x += 2.0f;
-		if (IsKeyDown(KEY_LEFT)) boxB.x -= 450.0f;
-		if (IsKeyDown(KEY_UP)) boxB.y -= 2.0f;
-		if (IsKeyDown(KEY_DOWN)) boxB.y += 2.0f;
+			if (IsKeyDown(KEY_D)) player2.rec.x += player2.speed.x;
+			if (IsKeyDown(KEY_A)) player2.rec.x -= player2.speed.x;
+			if (IsKeyDown(KEY_W)) player2.rec.y -= player2.speed.y;
+			if (IsKeyDown(KEY_S)) player2.rec.y += player2.speed.y;
 
+			if (IsKeyDown(KEY_K)) purpleBoxPosition.x += 2.0f;
+			if (IsKeyDown(KEY_H)) purpleBoxPosition.x -= 2.0f;
+
+			if (IsKeyDown(KEY_RIGHT)) player1.rec.x += player1.speed.x;
+			if (IsKeyDown(KEY_LEFT)) player1.rec.x -= player1.speed.x;
+			if (IsKeyDown(KEY_UP)) player1.rec.y -= player1.speed.y;
+			if (IsKeyDown(KEY_DOWN)) player1.rec.y += player1.speed.y;
+		
+			
 	
 
 
@@ -83,7 +115,7 @@ void Game::start()
 		if ((yellowBoxPosition.x >= (GetScreenWidth() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.x <= yellowBox->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
 		if ((yellowBoxPosition.y >= (GetScreenHeight() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.y <= yellowBox->getCollisionRadius())) yellowBallSpeed.y *= -1.0f;
 		
-		collision = CheckCollisionRecs(boxA, boxB);
+		collision = CheckCollisionRecs(player1.rec, player2.rec);
 
 		// Get collision rectangle (only on collision)
 		if (collision) boxCollision = GetCollisionRec(boxA, boxB);
@@ -94,17 +126,20 @@ void Game::start()
 		if (collision)
 		{
 			DrawText("You will! Press esc to close window", 2, 2, 35, RED);
-
 			m_gameOver = true;
+			_canMove = false;
+
+			boxA.x += purpBox.x;
+			boxA.y += purpBox.y;
 			
 		}
 		
 		
 		
 		BeginDrawing();
-		DrawRectanglePro(boxA, purpBox, 20, PURPLE);
-		DrawRectanglePro(boxB, yellBox, 20 ,YELLOW);
-		DrawCircleV(purpleBoxPosition, 25, MAROON);
+		DrawRectangleRec(player1.rec, player1.color);
+		DrawRectangleRec(player2.rec, player2.color);
+		
 		
 	
 		ClearBackground(BLACK);
