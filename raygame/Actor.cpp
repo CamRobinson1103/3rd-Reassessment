@@ -15,7 +15,7 @@ Actor::Actor(float x, float y, float collisionRadius, char icon = ' ', float max
     m_icon = icon;
     setLocalPosition(MathLibrary::Vector2(x,y));
     m_velocity = MathLibrary::Vector2();
-    m_collisionRadius = collisionRadius;
+    m_collisionRadius = 50;
     m_childCount = 0;
     m_maxSpeed = maxSpeed;
 }
@@ -23,6 +23,7 @@ Actor::Actor(float x, float y, float collisionRadius, char icon = ' ', float max
 Actor::Actor(float x, float y, float collisionRadius, Sprite* sprite, float maxSpeed = 1) : Actor(x, y, collisionRadius, ' ', maxSpeed)
 {
     m_sprite = sprite;
+    m_collisionRadius = 50;
 }
 
 Actor::Actor(float x, float y, float collisionRadius, const char* spriteFilePath, float maxSpeed = 1) : Actor(x, y, collisionRadius, ' ', maxSpeed)

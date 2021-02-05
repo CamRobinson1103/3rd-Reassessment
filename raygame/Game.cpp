@@ -1,15 +1,19 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include "raylib.h"
 #include "Vector2.h"
 #include "Actor.h"
+#include <math.h>
+
 
 bool Game::m_gameOver = false;
 bool collision = false;
+bool pause = false;
 Scene** Game::m_scenes = new Scene*;
 int Game::m_sceneCount = 0;
 int Game::m_currentSceneIndex = 0;
-Actor* purpleBall = new Actor(12,3,50,' ', 1 );
-Actor* yellowBall = new Actor(3, 13, 50, ' ', 1);
+
+
+
 
 Game::Game()
 {
@@ -32,36 +36,75 @@ void Game::start()
 	m_camera->target = { (float)screenWidth / 2, (float)screenHeight / 2 };
 	m_camera->zoom = 1;
 
-	Vector2 purpleBallPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
-	Vector2 yellowBallPosition = { (float)screenWidth / 1, (float)screenHeight / 2 };
+	Vector2 purpleBoxPosition = { (float)screenWidth / 2, (float)screenHeight / 2 };
+	Vector2 yellowBoxPosition = { (float)screenWidth / 1, (float)screenHeight / 2 };
 	Vector2 purpleBallSpeed{};
 	Vector2 yellowBallSpeed{};
+	
+
 
 
 	while (!WindowShouldClose())    
 	{
-		if (IsKeyDown(KEY_D)) purpleBallPosition.x += 1.0f;
-		if (IsKeyDown(KEY_A)) purpleBallPosition.x -= 1.0f;
-		if (IsKeyDown(KEY_W)) purpleBallPosition.y -= 1.0f;
-		if (IsKeyDown(KEY_S)) purpleBallPosition.y += 1.0f;
-		
-		if (IsKeyDown(KEY_RIGHT)) yellowBallPosition.x += 1.0f;
-		if (IsKeyDown(KEY_LEFT)) yellowBallPosition.x -= 1.0f;
-		if (IsKeyDown(KEY_UP)) yellowBallPosition.y -= 1.0f;
-		if (IsKeyDown(KEY_DOWN)) yellowBallPosition.y += 1.0f;
 
-		if ((purpleBallPosition.x >= (GetScreenWidth() - purpleBall->getCollisionRadius())) || (purpleBallPosition.x <= purpleBall->getCollisionRadius())) purpleBallSpeed.x *= -1.0f;
-		if ((purpleBallPosition.y >= (GetScreenHeight() - purpleBall->getCollisionRadius())) || (purpleBallPosition.y <= purpleBall->getCollisionRadius())) purpleBallSpeed.y *= -1.0f;
+		Actor* purpleBox = new Actor(5, 5, 50, '■', 5);
+		Actor* yellowBox = new Actor(5, 5, 50, '■', 1);
 
-		if ((yellowBallPosition.x >= (GetScreenWidth() - yellowBall->getCollisionRadius())) || (yellowBallPosition.x <= yellowBall->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
-		if ((yellowBallPosition.y >= (GetScreenHeight() - yellowBall->getCollisionRadius())) || (yellowBallPosition.y <= yellowBall->getCollisionRadius())) yellowBallSpeed.y *= .0f;
+		Rectangle boxA = { GetScreenWidth() / 2 , GetScreenHeight() / 2 -30, 60,60  };
+		Vector2 purpBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
+		Rectangle boxB = { GetScreenWidth() / 1 , GetScreenHeight() / 2 - 30, 60, 60 };
+		Vector2 yellBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
+
+
+		Rectangle boxCollision = { 0 }; 
+
+		if (IsKeyDown(KEY_D)) boxA.x += 450.0f;
+		if (IsKeyDown(KEY_A)) boxA.x -= 2.0f;
+		if (IsKeyDown(KEY_W)) boxA.y -= 2.0f;
+		if (IsKeyDown(KEY_S)) boxA.y += 2.0f;
 		
-		purpleBall->onCollision(yellowBall);
-					
+		if (IsKeyDown(KEY_RIGHT)) boxB.x += 2.0f;
+		if (IsKeyDown(KEY_LEFT)) boxB.x -= 450.0f;
+		if (IsKeyDown(KEY_UP)) boxB.y -= 2.0f;
+		if (IsKeyDown(KEY_DOWN)) boxB.y += 2.0f;
+
+	
+
+
+		if ((boxB.x + boxB.width) >= GetScreenWidth()) boxB.x = GetScreenWidth() - boxB.width;
+		else if (boxB.x <= 0) boxB.x = 0;
+
+		if ((boxB.y + boxB.height) >= GetScreenHeight()) boxB.y = GetScreenHeight() - boxB.height;
+
+
+		if ((purpleBoxPosition.x >= (GetScreenWidth() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.x <= purpleBox->getCollisionRadius())) purpleBallSpeed.x *= -1.0f;
+		if ((purpleBoxPosition.y >= (GetScreenHeight() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.y <= purpleBox->getCollisionRadius())) purpleBallSpeed.y *= -1.0f;
+
+		if ((yellowBoxPosition.x >= (GetScreenWidth() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.x <= yellowBox->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
+		if ((yellowBoxPosition.y >= (GetScreenHeight() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.y <= yellowBox->getCollisionRadius())) yellowBallSpeed.y *= -1.0f;
+		
+		collision = CheckCollisionRecs(boxA, boxB);
+
+		// Get collision rectangle (only on collision)
+		if (collision) boxCollision = GetCollisionRec(boxA, boxB);
+
+
+		purpleBox->onCollision(yellowBox);
+		
+		if (collision)
+		{
+			DrawText("You will! Press esc to close window", 2, 2, 35, RED);
+
+			m_gameOver = true;
+			
+		}
+		
+		
 		
 		BeginDrawing();
-		DrawCircleV(purpleBallPosition, purpleBall->getCollisionRadius(), PURPLE);
-		DrawCircleV(yellowBallPosition, yellowBall->getCollisionRadius(), YELLOW);
+		DrawRectanglePro(boxA, purpBox, 20, PURPLE);
+		DrawRectanglePro(boxB, yellBox, 20 ,YELLOW);
+		DrawCircleV(purpleBoxPosition, 25, MAROON);
 		
 	
 		ClearBackground(BLACK);
@@ -72,6 +115,7 @@ void Game::start()
 
 	SetTargetFPS(60);
 }
+
 
 
 void Game::update(float deltaTime)
