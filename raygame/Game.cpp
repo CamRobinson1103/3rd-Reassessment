@@ -3,6 +3,9 @@
 #include "Vector2.h"
 #include "Actor.h"
 #include <math.h>
+#include <stdlib.h>
+#include <ctime>
+#define NUM_SHOOTS 50
 
 
 bool Game::m_gameOver = false;
@@ -21,15 +24,33 @@ void DisableControls()
 typedef struct Player {
 	Rectangle rec;
 	Vector2 speed;
+	bool active;
 	Color color;
 } Player;
 
+typedef struct Shoot {
+	Rectangle rec;
+	Vector2 speed;
+	bool active;
+	Color color;
+} Shoot;
+
+
 static Player player1 = { 0 };
 static Player player2 = { 0 };
+static Shoot shoot = { 0 };
+static int shootRate = 0;
+static int activePlayers = 2;
+static int playerKill = 0;
+static float alpha = 0.0f;
+static int activeEnemies = 0;
+static int enemiesKill = 0;
+static bool smooth = false;
 
 Game::Game()
 {
 	m_gameOver = false;
+	shootRate = 0;
 	m_scenes = new Scene*;
 	m_camera = new Camera2D();
 	m_currentSceneIndex = 0;
@@ -41,21 +62,44 @@ void Game::start()
 	const int screenWidth = 1024;
 	const int screenHeight = 760;
 
-	player1.rec.x = 100;
+	player1.rec.x = 1000;
 	player1.rec.y = 50;
-	player1.rec.width = 20;
-	player1.rec.height = 20;
+	player1.rec.width = 100;
+	player1.rec.height = 100;
 	player1.speed.x = 1;
 	player1.speed.y = 1;
 	player1.color = PURPLE;
 
-	player2.rec.x = 20;
+	player2.rec.x = 100;
 	player2.rec.y = 50;
-	player2.rec.width = 20;
-	player2.rec.height = 20;
+	player2.rec.width = 100;
+	player2.rec.height = 100;
 	player2.speed.x = 1;
 	player2.speed.y = 1;
 	player2.color = YELLOW;
+
+	shoot.rec.x = 100;
+	shoot.rec.y = 50;
+	shoot.rec.width = 100;
+	shoot.rec.height = 100;
+	shoot.speed.x = 1;
+	shoot.speed.y = 1;
+	shoot.color = GREEN;
+
+	static Shoot shoot[NUM_SHOOTS] = { 0 };
+
+	for (int i = 0; i < NUM_SHOOTS; i++)
+	{
+		shoot[i].rec.x = player1.rec.x;
+		shoot[i].rec.y = player1.rec.y + player1.rec.height / 4;
+		shoot[i].rec.width = 10;
+		shoot[i].rec.height = 5;
+		shoot[i].speed.x = 7;
+		shoot[i].speed.y = 3;
+		shoot[i].active = false;
+		shoot[i].color = MAROON;
+	}
+
 	
 
 	InitWindow(screenWidth, screenHeight, "Yellow vs. Purple");
@@ -73,79 +117,100 @@ void Game::start()
 
 	while (!WindowShouldClose())    
 	{
+		if (m_gameOver == false)
+		{
+			Actor* purpleBox = new Actor(5, 5, 50, '■', 5);
+			Actor* yellowBox = new Actor(5, 5, 50, '■', 1);
 
-		Actor* purpleBox = new Actor(5, 5, 50, '■', 5);
-		Actor* yellowBox = new Actor(5, 5, 50, '■', 1);
-
-		Rectangle boxA = { GetScreenWidth() / 2 , GetScreenHeight() / 2 -30, 60,60  };
-		Vector2 purpBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
-		Rectangle boxB = { GetScreenWidth() / 1 , GetScreenHeight() / 2 - 30, 60, 60 };
-		Vector2 yellBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
+			Rectangle boxA = { GetScreenWidth() / 2 , GetScreenHeight() / 2 - 30, 60,60 };
+			Vector2 purpBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
+			Rectangle boxB = { GetScreenWidth() / 1 , GetScreenHeight() / 2 - 30, 60, 60 };
+			Vector2 yellBox = { (float)screenWidth / 1, (float)screenHeight / 2 };
 
 
-		Rectangle boxCollision = { 0 }; 
+			Rectangle boxCollision = { 5 };
 
-		
 			if (IsKeyDown(KEY_D)) player2.rec.x += player2.speed.x;
 			if (IsKeyDown(KEY_A)) player2.rec.x -= player2.speed.x;
 			if (IsKeyDown(KEY_W)) player2.rec.y -= player2.speed.y;
 			if (IsKeyDown(KEY_S)) player2.rec.y += player2.speed.y;
 
-			if (IsKeyDown(KEY_K)) purpleBoxPosition.x += 2.0f;
-			if (IsKeyDown(KEY_H)) purpleBoxPosition.x -= 2.0f;
+
 
 			if (IsKeyDown(KEY_RIGHT)) player1.rec.x += player1.speed.x;
 			if (IsKeyDown(KEY_LEFT)) player1.rec.x -= player1.speed.x;
 			if (IsKeyDown(KEY_UP)) player1.rec.y -= player1.speed.y;
 			if (IsKeyDown(KEY_DOWN)) player1.rec.y += player1.speed.y;
-		
+
+			if (IsKeyDown(KEY_SPACE))
+			{
+				DrawRectangleRec(shoot->rec, shoot->color);
+				shootRate += 5;
+
+				for (int i = 0; i < NUM_SHOOTS; i++)
+				{
+					if (!shoot[i].active && shootRate % 20 == 0)
+					{
+						shoot[i].rec.x = player1.rec.x;
+						shoot[i].rec.y = player1.rec.y + player1.rec.height / 4;
+						shoot[i].active = true;
+						break;
+					}
+				}
+			}
+
 			
-	
-
-
-		if ((boxB.x + boxB.width) >= GetScreenWidth()) boxB.x = GetScreenWidth() - boxB.width;
-		else if (boxB.x <= 0) boxB.x = 0;
-
-		if ((boxB.y + boxB.height) >= GetScreenHeight()) boxB.y = GetScreenHeight() - boxB.height;
-
-
-		if ((purpleBoxPosition.x >= (GetScreenWidth() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.x <= purpleBox->getCollisionRadius())) purpleBallSpeed.x *= -1.0f;
-		if ((purpleBoxPosition.y >= (GetScreenHeight() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.y <= purpleBox->getCollisionRadius())) purpleBallSpeed.y *= -1.0f;
-
-		if ((yellowBoxPosition.x >= (GetScreenWidth() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.x <= yellowBox->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
-		if ((yellowBoxPosition.y >= (GetScreenHeight() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.y <= yellowBox->getCollisionRadius())) yellowBallSpeed.y *= -1.0f;
 		
-		collision = CheckCollisionRecs(player1.rec, player2.rec);
-
-		// Get collision rectangle (only on collision)
-		if (collision) boxCollision = GetCollisionRec(boxA, boxB);
 
 
-		purpleBox->onCollision(yellowBox);
-		
-		if (collision)
-		{
-			DrawText("You will! Press esc to close window", 2, 2, 35, RED);
-			m_gameOver = true;
-			_canMove = false;
 
-			boxA.x += purpBox.x;
-			boxA.y += purpBox.y;
-			
+			if ((boxB.x + boxB.width) >= GetScreenWidth()) boxB.x = GetScreenWidth() - boxB.width;
+			else if (boxB.x <= 0) boxB.x = 0;
+
+			if ((boxB.y + boxB.height) >= GetScreenHeight()) boxB.y = GetScreenHeight() - boxB.height;
+
+
+			if ((purpleBoxPosition.x >= (GetScreenWidth() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.x <= purpleBox->getCollisionRadius())) purpleBallSpeed.x *= -1.0f;
+			if ((purpleBoxPosition.y >= (GetScreenHeight() - purpleBox->getCollisionRadius())) || (purpleBoxPosition.y <= purpleBox->getCollisionRadius())) purpleBallSpeed.y *= -1.0f;
+
+			if ((yellowBoxPosition.x >= (GetScreenWidth() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.x <= yellowBox->getCollisionRadius())) yellowBallSpeed.x *= -1.0f;
+			if ((yellowBoxPosition.y >= (GetScreenHeight() - yellowBox->getCollisionRadius())) || (yellowBoxPosition.y <= yellowBox->getCollisionRadius())) yellowBallSpeed.y *= -1.0f;
+
+			collision = CheckCollisionRecs(player1.rec, player2.rec);
+
+			// Get collision rectangle (only on collision)
+			if (collision) boxCollision = GetCollisionRec(boxA, boxB);
+
+
+			purpleBox->onCollision(yellowBox);
+
+			if (collision)
+			{
+				m_gameOver == true;
+				pause = true;
+				ClearBackground(RAYWHITE);
+				DrawText("You Win!", screenWidth / 2 - MeasureText("You Win!", 40) / 2, screenHeight / 2 - 40, 40, GRAY);
+				player2.color = RAYWHITE;
+				player1.color = BLACK;
+				
+				_canMove = false;
+
+			}
+			if (collision)
+			{
+
+			}
 		}
-		
 		
 		
 		BeginDrawing();
 		DrawRectangleRec(player1.rec, player1.color);
 		DrawRectangleRec(player2.rec, player2.color);
 		
-		
-	
+
 		ClearBackground(BLACK);
 
 		EndDrawing();
-		
 	}
 
 	SetTargetFPS(60);

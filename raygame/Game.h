@@ -48,6 +48,8 @@ public:
     /// <param name="index">The index of the scene to switch to</param>
     static void setCurrentScene(int index);
 
+    bool controls();
+
 
     /// <summary>
     /// Returns true while a key is being pressed
@@ -84,6 +86,7 @@ private:
 	void update(float delaTime);
 	void draw();
 	void end();
+    
 
 private:
     Camera2D* m_camera;
